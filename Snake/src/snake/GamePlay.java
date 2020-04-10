@@ -29,13 +29,12 @@ public class GamePlay implements Runnable {
 		int H = prop.height;
 		int S = prop.scale;
 		ctrl = new Controls(prop);
-
-		initGame();
-
 		screen = new Screen(ctrl, W, H, S, prop,snake);
 		main_frame.add(screen);
-		main_frame.pack();
 		main_frame.addKeyListener(ctrl);
+
+		initGame();
+		main_frame.pack();
 	}
 
 	private void initGame() {
@@ -47,6 +46,9 @@ public class GamePlay implements Runnable {
 		head.color = Color.BLUE;
 		prop.setNewGame(false);
 		prop.score = 0;
+		
+		food = generateFood();
+		screen.food = food;
 	}
 
 	private Box generateFood() {
@@ -119,6 +121,7 @@ public class GamePlay implements Runnable {
 		
 		//if head touches body
 		if (!isCellFree(new Box(x1, y1))) {
+			System.out.println("Head Smash");
 			//System.out.println("Game Over");
 			prop.gameIsOver();
 			gameOverBlink();
@@ -133,20 +136,26 @@ public class GamePlay implements Runnable {
 			head.x1 = x1;
 			head.y1 = y1;
 		}
-		if (prop.food_generated == false) {
-			food = generateFood();
-			screen.food = food;
-			prop.food_generated = true;
-		}
+//		if (prop.food_generated == false) {
+//			food = generateFood();
+//			screen.food = food;
+//			prop.food_generated = true;
+//		}
 		eatFood(food);
+		prop.key_pressed = false;
 	}
 
 	private void eatFood(Box food) {
 		if (head.x1 == food.x1 && head.y1 == food.y1) {
 			food.color = Color.red;
 			snake.add(food);
-			food.color = Color.black;
-			prop.food_generated = false;
+			//food.color = Color.black;
+			//screen.update(snake);
+			//prop.food_generated = false;
+			prop.decreaseTick();
+			
+			this.food = generateFood();
+			screen.food = this.food;
 		}
 	}
 
@@ -159,7 +168,10 @@ public class GamePlay implements Runnable {
 	
 	private void tick() {
 		int tick = 0;
-		while (tick <= 30) {
+		while (tick <= prop.ticks) {
+			if(prop.key_pressed) {
+				break;
+			}
 			tick++;
 			screen.update(snake);
 			//playGame();
@@ -173,8 +185,8 @@ public class GamePlay implements Runnable {
 			if (prop.isNewGame()) {
 				newGameSetup();
 			} else {
-				tick();
 				playGame();
+				tick();
 			}
 		}
 	}
