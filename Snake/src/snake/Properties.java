@@ -10,7 +10,10 @@ public class Properties {
 	private boolean rungame = true;
 	public int score = 0;
 	public boolean blink_snake = false;
-	public boolean food_generated = false;
+	//public boolean food_generated = false;
+	public boolean key_pressed = false;
+	
+	public int ticks = 120;
 
 	private boolean gameover = false;
 
@@ -45,5 +48,12 @@ public class Properties {
 
 	public void startANewGame() {
 		newgame = true;
+	}
+	
+	public void decreaseTick() {
+		ticks -= 10;
+		if(ticks < 20) {
+			ticks = 20;
+		}
 	}
 }
