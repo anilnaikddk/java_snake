@@ -82,16 +82,30 @@ public class Screen extends JPanel {
 		if (prop.blink_snake) {
 			return;
 		}
+
+//		for (int i = 1; i < snake.size(); i++) {
+//			if (snake.get(i).color == Color.red) {
+//				snake.get(i).color = Color.black;
+//				// snake.get(i+1).color = Color.red;
+//			}
+//			g.setColor(snake.get(i).color);
+//			g.fillRect(snake.get(i).x1, snake.get(i).y1, GS, GS);
+//		}
+
 		for (Box body : snake) {
-			if (body == null) {
-				continue;
+			if (body.color == Color.red) {
+				body.color = Color.black;
 			}
 			g.setColor(body.color);
 			g.fillRect(body.x1, body.y1, GS, GS);
 		}
-		if (prop.food_generated) {
-			g.setColor(food.color);
-			g.fillRect(food.x1, food.y1, GS, GS);
-		}
+
+		// draw food
+		g.setColor(food.color);
+		g.fillRect(food.x1, food.y1, GS, GS);
+
+		// draw head at last
+		g.setColor(snake.get(0).color);
+		g.fillRect(snake.get(0).x1, snake.get(0).y1, GS, GS);
 	}
 }
