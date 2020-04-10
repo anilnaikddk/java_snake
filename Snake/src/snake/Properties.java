@@ -4,8 +4,8 @@ public class Properties {
 
 	public final int height = 500;
 	public final int width = 500;
-	public final int scale = 10;
-	public int blink_secs = 5;
+	public final int scale = 20;
+	public int game_over_blink_secs = 5;
 	private boolean newgame = true;
 	private boolean rungame = true;
 	public int score = 0;
