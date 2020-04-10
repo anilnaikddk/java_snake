@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 public class GamePlay implements Runnable {
 	private JFrame main_frame;
@@ -18,13 +19,11 @@ public class GamePlay implements Runnable {
 
 	public GamePlay(JFrame frame) {
 		main_frame = frame;
-		snake = new ArrayList<Box>();
 		newGameSetup();
-		main_frame.addKeyListener(ctrl);
 	}
 
 	private void newGameSetup() {
-		//System.out.println("NG");
+		snake = new ArrayList<Box>();
 		prop = new Properties();
 		int W = prop.width;
 		int H = prop.height;
@@ -36,6 +35,7 @@ public class GamePlay implements Runnable {
 		screen = new Screen(ctrl, W, H, S, prop,snake);
 		main_frame.add(screen);
 		main_frame.pack();
+		main_frame.addKeyListener(ctrl);
 	}
 
 	private void initGame() {
@@ -76,23 +76,25 @@ public class GamePlay implements Runnable {
 	}
 
 	private void gameOverBlink() {
-		System.out.println("Game Over");
+		//System.out.println("Game Over");
 		int time = 0;
-		while (time / 1000 < prop.blink_secs) {
+		while (time / 1000 < prop.game_over_blink_secs) {
 			pause(500);
 			prop.blink_snake = !prop.blink_snake;
 			screen.repaint();
 			time += 500;
 			//System.out.println(time);
 		}
+		int continue_game = JOptionPane.showConfirmDialog(
+				null, "Do you want to play more?", "Game Over..Continue??", JOptionPane.YES_NO_OPTION);
+		if(continue_game == JOptionPane.YES_OPTION) {
+			prop.startANewGame();
+		}else if(continue_game == JOptionPane.NO_OPTION) {
+			System.exit(0);
+		}
 	}
 
 	public void playGame() {
-
-//		boolean touched_boundary = ctrl.LEFT && snake.get(0).x1 == 0 
-//				|| ctrl.UP && snake.get(0).y1 == 0
-//				|| ctrl.RIGHT && snake.get(0).x1 == prop.width - prop.scale
-//				|| ctrl.DOWN && snake.get(0).y1 == prop.height - prop.scale;
 		boolean touched_boundary = ctrl.LEFT && head.x1 == 0 
 				|| ctrl.UP && head.y1 == 0
 				|| ctrl.RIGHT && head.x1 == prop.width - prop.scale
@@ -117,7 +119,7 @@ public class GamePlay implements Runnable {
 		
 		//if head touches body
 		if (!isCellFree(new Box(x1, y1))) {
-			System.out.println("Game Over");
+			//System.out.println("Game Over");
 			prop.gameIsOver();
 			gameOverBlink();
 			return;
@@ -157,11 +159,11 @@ public class GamePlay implements Runnable {
 	
 	private void tick() {
 		int tick = 0;
-		while (tick <= 60) {
+		while (tick <= 30) {
 			tick++;
 			screen.update(snake);
-			playGame();
-			pause(100);
+			//playGame();
+			pause(1);
 		}
 	}
 
@@ -172,7 +174,7 @@ public class GamePlay implements Runnable {
 				newGameSetup();
 			} else {
 				tick();
-				//playGame();
+				playGame();
 			}
 		}
 	}
