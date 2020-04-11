@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.util.ArrayList;
+import java.util.function.Consumer;
 import javax.swing.JPanel;
 
 public class Screen extends JPanel {
@@ -53,17 +54,17 @@ public class Screen extends JPanel {
 		if (ctrl.SHOW_GRIDS) {
 			drawGrids(g);
 		}
+		if(prop.gamemode == Properties.GAME_MODE_HARD) {
+			g.setColor(Color.black);
+			g.drawRect(0, 0, W-1, H-1);
+			g.drawRect(1, 1, W-3, H-3);
+		}
 	}
 
 	@Override
 	public void paint(Graphics g) {
-		if (!prop.isGameOver()) {
-			// checkMode(g);
-			checkGrid(g);
-			drawSnake(g);
-		} else {
-			drawSnake(g);
-		}
+		drawSnake(g);
+		checkGrid(g);
 	}
 
 	private void drawGrids(Graphics g) {
@@ -82,23 +83,15 @@ public class Screen extends JPanel {
 		if (prop.blink_snake) {
 			return;
 		}
-
-//		for (int i = 1; i < snake.size(); i++) {
-//			if (snake.get(i).color == Color.red) {
-//				snake.get(i).color = Color.black;
-//				// snake.get(i+1).color = Color.red;
-//			}
-//			g.setColor(snake.get(i).color);
-//			g.fillRect(snake.get(i).x1, snake.get(i).y1, GS, GS);
-//		}
-
-		for (Box body : snake) {
+		
+		Consumer<Box> c1 = body -> {
 			if (body.color == Color.red) {
 				body.color = Color.black;
 			}
 			g.setColor(body.color);
 			g.fillRect(body.x1, body.y1, GS, GS);
-		}
+		}; 
+		snake.forEach(c1);
 
 		// draw food
 		g.setColor(food.color);
