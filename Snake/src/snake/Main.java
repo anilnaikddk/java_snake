@@ -9,7 +9,7 @@ public class Main {
 	public Main() {
 		frame = new JFrame("Snake - Game");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setVisible(true);
+		//frame.setVisible(true);
 		
 		GamePlay gp = new GamePlay(frame);
 		new Thread(gp).start();
