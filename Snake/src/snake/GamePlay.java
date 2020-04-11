@@ -29,12 +29,33 @@ public class GamePlay implements Runnable {
 		int H = prop.height;
 		int S = prop.scale;
 		ctrl = new Controls(prop);
-		screen = new Screen(ctrl, W, H, S, prop,snake);
+		screen = new Screen(ctrl, W, H, S, prop, snake);
 		main_frame.add(screen);
 		main_frame.addKeyListener(ctrl);
 
 		initGame();
+		askMode();
 		main_frame.pack();
+		main_frame.setVisible(true);
+	}
+
+	private void askMode() {
+		Object[] options = { "Easy", "Medium", "Hard" };
+		String msg = "Select the Game Mode";
+		String title = "Game Mode Selection..";
+		int r = JOptionPane.showOptionDialog(null, msg, title, JOptionPane.YES_NO_CANCEL_OPTION, // Options to appear
+				JOptionPane.QUESTION_MESSAGE, // Type of message
+				null, // Icon
+				options, // Options to Appear
+				options[0]); // default Option
+		//System.out.println(r);
+		if (r == JOptionPane.YES_OPTION) {
+			prop.gamemode = Properties.GAME_MODE_EASY;
+		} else if (r == JOptionPane.NO_OPTION) {
+			prop.gamemode = Properties.GAME_MODE_MEDIUM;
+		} else if (r == JOptionPane.CANCEL_OPTION) {
+			prop.gamemode = Properties.GAME_MODE_HARD;
+		}
 	}
 
 	private void initGame() {
@@ -46,7 +67,7 @@ public class GamePlay implements Runnable {
 		head.color = Color.BLUE;
 		prop.setNewGame(false);
 		prop.score = 0;
-		
+
 		food = generateFood();
 		screen.food = food;
 	}
@@ -78,33 +99,53 @@ public class GamePlay implements Runnable {
 	}
 
 	private void gameOverBlink() {
-		//System.out.println("Game Over");
+		// System.out.println("Game Over");
 		int time = 0;
 		while (time / 1000 < prop.game_over_blink_secs) {
 			pause(500);
 			prop.blink_snake = !prop.blink_snake;
 			screen.repaint();
 			time += 500;
-			//System.out.println(time);
+			// System.out.println(time);
 		}
-		int continue_game = JOptionPane.showConfirmDialog(
-				null, "Do you want to play more?", "Game Over..Continue??", JOptionPane.YES_NO_OPTION);
-		if(continue_game == JOptionPane.YES_OPTION) {
+		int continue_game = JOptionPane.showConfirmDialog(null, "Do you want to play more?", "Game Over..Continue??",
+				JOptionPane.YES_NO_OPTION);
+		if (continue_game == JOptionPane.YES_OPTION) {
 			prop.startANewGame();
-		}else if(continue_game == JOptionPane.NO_OPTION) {
+		} else if (continue_game == JOptionPane.NO_OPTION) {
 			System.exit(0);
 		}
 	}
 
-	public void playGame() {
-		boolean touched_boundary = ctrl.LEFT && head.x1 == 0 
-				|| ctrl.UP && head.y1 == 0
-				|| ctrl.RIGHT && head.x1 == prop.width - prop.scale
+	private boolean isBoundaryTouched() {
+		return ctrl.LEFT && head.x1 == 0 || ctrl.UP && head.y1 == 0 || ctrl.RIGHT && head.x1 == prop.width - prop.scale
 				|| ctrl.DOWN && head.y1 == prop.height - prop.scale;
-		if (touched_boundary) {
-			prop.gameIsOver();
-			gameOverBlink();
-			return;
+	}
+
+	private void transferHead() {
+		if (ctrl.LEFT) {
+			head.x1 = prop.width - prop.scale;
+		} else if (ctrl.RIGHT) {
+			head.x1 = 0;
+		} else if (ctrl.UP) {
+			head.y1 = prop.height - prop.scale;
+		} else if (ctrl.DOWN) {
+			head.y1 = 0;
+		}
+	}
+
+	public void playGame() {
+
+		if (isBoundaryTouched()) {
+			if (prop.gamemode == Properties.GAME_MODE_EASY) {
+				transferHead();
+			} else if (prop.gamemode == Properties.GAME_MODE_MEDIUM) {
+				transferHead();
+			} else if (prop.gamemode == Properties.GAME_MODE_HARD) {
+				prop.gameIsOver();
+				gameOverBlink();
+				return;
+			}
 		}
 
 		int x1 = head.x1;
@@ -118,11 +159,11 @@ public class GamePlay implements Runnable {
 		} else if (ctrl.LEFT) {
 			x1 -= prop.scale;
 		}
-		
-		//if head touches body
+
+		// if head touches body
 		if (!isCellFree(new Box(x1, y1))) {
 			System.out.println("Head Smash");
-			//System.out.println("Game Over");
+			// System.out.println("Game Over");
 			prop.gameIsOver();
 			gameOverBlink();
 			return;
@@ -149,11 +190,11 @@ public class GamePlay implements Runnable {
 		if (head.x1 == food.x1 && head.y1 == food.y1) {
 			food.color = Color.red;
 			snake.add(food);
-			//food.color = Color.black;
-			//screen.update(snake);
-			//prop.food_generated = false;
+			// food.color = Color.black;
+			// screen.update(snake);
+			// prop.food_generated = false;
 			prop.decreaseTick();
-			
+
 			this.food = generateFood();
 			screen.food = this.food;
 		}
@@ -165,16 +206,16 @@ public class GamePlay implements Runnable {
 		} catch (InterruptedException e) {
 		}
 	}
-	
+
 	private void tick() {
 		int tick = 0;
 		while (tick <= prop.ticks) {
-			if(prop.key_pressed) {
+			if (prop.key_pressed) {
 				break;
 			}
 			tick++;
 			screen.update(snake);
-			//playGame();
+			// playGame();
 			pause(1);
 		}
 	}
